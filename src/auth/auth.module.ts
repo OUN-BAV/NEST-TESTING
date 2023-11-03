@@ -8,7 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { JwtService, JwtModule } from '@nestjs/jwt';
 import { localStrategy } from './strategies/local.strategy';
-// require('dotenv').config();
+require('dotenv').config();
 // console.log(process.env.JWT_KEY);
 @Module({
   imports: [
@@ -16,7 +16,7 @@ import { localStrategy } from './strategies/local.strategy';
     TypeOrmModule.forFeature([User]),
     JwtModule.register({
       global: true,
-      secret: 'jdfghjkljhgfdhjklhhgjg',
+      secret: process.env.JWT_KEY,
       signOptions: { expiresIn: '3600s' },
     }),
   ],

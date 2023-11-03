@@ -11,6 +11,7 @@ import { AuthService } from './auth.service';
 import { localStrategy } from './strategies/local.strategy';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
+import { RefreshjwtAuthGuard } from './guards/refresh-jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -23,7 +24,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async logIn(@Request() req) {
-    console.log(req.body);
+    console.log(req.user);
     return this.authService.logIn(req.body);
   }
 
@@ -31,5 +32,11 @@ export class AuthController {
   async registerUser(@Body() createUserDto: CreateUserDto) {
     console.log(createUserDto);
     return this.userService.create(createUserDto);
+  }
+
+  @UseGuards(RefreshjwtAuthGuard)
+  @Post('refresh')
+  async refreshToken(@Request() req) {
+    return this.authService.refreshToken(req.body);
   }
 }

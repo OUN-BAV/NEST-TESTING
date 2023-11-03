@@ -13,6 +13,9 @@ export class Product {
   code: string;
 
   @Column()
+  image: string;
+
+  @Column()
   price: number;
 
   @Column()

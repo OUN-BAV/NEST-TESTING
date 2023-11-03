@@ -12,6 +12,7 @@ import { localStrategy } from './strategies/local.strategy';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { RefreshjwtAuthGuard } from './guards/refresh-jwt-auth.guard';
+import { localAuthGuard } from './guards/local-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -20,11 +21,10 @@ export class AuthController {
     private userService: UsersService,
   ) {}
 
-  @UseGuards(localStrategy)
   @HttpCode(HttpStatus.OK)
+  @UseGuards(localAuthGuard)
   @Post('login')
   async logIn(@Request() req) {
-    console.log(req.user);
     return this.authService.logIn(req.body);
   }
 

@@ -1,0 +1,27 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+import { Module } from '@nestjs/common';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { UsersModule } from '../users/users.module';
+import { UsersService } from 'src/users/users.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from 'src/users/entities/user.entity';
+import { JwtService, JwtModule } from '@nestjs/jwt';
+import { localStrategy } from './strategies/local.strategy';
+// require('dotenv').config();
+// console.log(process.env.JWT_KEY);
+@Module({
+  imports: [
+    UsersModule,
+    TypeOrmModule.forFeature([User]),
+    JwtModule.register({
+      global: true,
+      secret: 'jdfghjkljhgfdhjklhhgjg',
+      signOptions: { expiresIn: '3600s' },
+    }),
+  ],
+  controllers: [AuthController],
+  providers: [AuthService, UsersService, localStrategy],
+  exports: [AuthService],
+})
+export class AuthModule {}

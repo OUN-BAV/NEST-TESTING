@@ -4,6 +4,7 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsString,
   Matches,
   MinLength,
@@ -45,4 +46,8 @@ export class CreateUserDto {
     one special character`,
   })
   password: string;
+
+  @IsNumber()
+  @IsInt()
+  roleId: number;
 }

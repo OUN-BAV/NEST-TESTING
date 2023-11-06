@@ -1,5 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  ManyToOne,
+} from 'typeorm';
 import { Product } from 'src/product/entities/product.entity';
+import { Role } from 'src/roles/entities/role.entity';
 @Entity()
 export class User {
   /**
@@ -35,4 +42,7 @@ export class User {
    */
   @OneToMany((type) => Product, (product) => product.user)
   products: Product[];
+
+  @ManyToOne((type) => Role, (role) => role.user)
+  role: Role;
 }

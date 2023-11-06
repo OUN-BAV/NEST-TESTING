@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
@@ -13,7 +18,20 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<any> {
+    if (await this.checkExistedUser(createUserDto.username)) {
+      throw new HttpException(
+        {
+          status: HttpStatus.CONFLICT,
+          error: 'This user already existed.',
+        },
+        HttpStatus.CONFLICT,
+        {
+          cause: new UnauthorizedException(),
+        },
+      );
+    }
+
     const passEncryp: string = await bcrypt.hash(createUserDto.password, 12);
     const user: User = new User();
     user.name = createUserDto.name;
@@ -29,17 +47,13 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
-  findOne(id: number): Promise<User> {
+  findOne(id: number): Promise<User> | undefined {
     return this.usersRepository.findOneBy({ id });
   }
 
   async findByEmail(username: string): Promise<User | undefined> {
     return this.usersRepository.findOne({ where: { username } });
   }
-
-  // async getUserByEmail(email: string): Promise<User | undefined> {
-  //   return this.usersRepository.findOne({ where: { email } });
-  // }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     const passEncryp: string = await bcrypt.hash(updateUserDto.password, 12);
@@ -55,5 +69,12 @@ export class UsersService {
 
   remove(id: number): Promise<{ affected?: number }> {
     return this.usersRepository.delete({ id });
+  }
+
+  async checkExistedUser(username: string): Promise<boolean> {
+    const isExistedUser = await this.usersRepository.exist({
+      where: { username },
+    });
+    return isExistedUser;
   }
 }

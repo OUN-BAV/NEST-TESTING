@@ -2,6 +2,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,6 +20,9 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<any> {
+    /**
+     * Validate Existed User
+     */
     if (await this.checkExistedUser(createUserDto.username)) {
       throw new HttpException(
         {
@@ -47,12 +51,31 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
-  findOne(id: number): Promise<User> | undefined {
-    return this.usersRepository.findOneBy({ id });
+  async findOne(id: number): Promise<User> | undefined {
+    /**
+     * Validate when user is null
+     */
+    const USER = await this.usersRepository.findOneBy({ id });
+    if (USER === null) {
+      throw new HttpException(
+        { status: HttpStatus.NOT_FOUND, error: 'This user not found.' },
+        HttpStatus.NOT_FOUND,
+        { cause: new NotFoundException() },
+      );
+    }
+    return USER;
   }
 
   async findByEmail(username: string): Promise<User | undefined> {
-    return this.usersRepository.findOne({ where: { username } });
+    const USER = await this.usersRepository.findOne({ where: { username } });
+    if (USER === null) {
+      throw new HttpException(
+        { status: HttpStatus.NOT_FOUND, error: 'This user not found.' },
+        HttpStatus.NOT_FOUND,
+        { cause: new NotFoundException() },
+      );
+    }
+    return USER;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
